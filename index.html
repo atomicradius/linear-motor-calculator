@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直线电机推力计算器</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚀 直线电机推力计算器</h1>
+            <p>CSK直线电机推力与容量计算工具</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <!-- 用户输入参数 -->
+                <div class="card">
+                    <h2>📝 用户输入参数</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="loadWeight">负载重量 (kg)</label>
+                            <input type="number" id="loadWeight" step="0.1" min="0" placeholder="请输入负载重量">
+                        </div>
+                        <div class="form-group">
+                            <label for="maxSpeed">最高速度 (m/s)</label>
+                            <input type="number" id="maxSpeed" step="0.1" min="0" placeholder="请输入最高速度">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="acceleration">加速度 (m/s²)</label>
+                            <input type="number" id="acceleration" step="0.1" min="0" placeholder="请输入加速度">
+                        </div>
+                        <div class="form-group">
+                            <label for="totalStroke">总行程 (m)</label>
+                            <input type="number" id="totalStroke" step="0.01" min="0" placeholder="请输入总行程">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="restTime">中途休息时间 (sec)</label>
+                            <input type="number" id="restTime" step="0.1" min="0" placeholder="请输入休息时间">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 电机参数管理 -->
+                <div class="card">
+                    <h2>⚙️ 电机参数管理</h2>
+                    <div class="motor-params-section">
+                        <div class="csv-controls">
+                            <button type="button" id="downloadTemplate" class="btn btn-secondary">
+                                📥 下载CSV模板
+                            </button>
+                            <div class="file-upload">
+                                <input type="file" id="motorParamsFile" accept=".csv" multiple style="display: none;">
+                                <button type="button" id="uploadFile" class="btn btn-secondary">
+                                    📤 上传电机参数
+                                </button>
+                            </div>
+                        </div>
+                        <div id="currentMotorInfo" class="motor-info" style="display: none;">
+                            <h3>已加载的电机参数</h3>
+                            <div id="motorParamsDisplay"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 电机参数输入（手动输入备用） -->
+                <div class="card">
+                    <h2>🔧 电机参数（手动输入）</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="motorName">电机名称</label>
+                            <input type="text" id="motorName" placeholder="请输入电机名称">
+                        </div>
+                                            <div class="form-group">
+                        <label for="originalThrust">原推力数据 (N)</label>
+                        <input type="number" id="originalThrust" step="0.1" min="0" placeholder="原推力数据">
+                    </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ratedCurrent">额定电流 (A)</label>
+                            <input type="number" id="ratedCurrent" step="0.1" min="0" placeholder="额定电流">
+                        </div>
+                        <div class="form-group">
+                            <label for="peakCurrent">峰值电流 (A)</label>
+                            <input type="number" id="peakCurrent" step="0.1" min="0" placeholder="峰值电流">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sliderWeight">滑座重量 (kg)</label>
+                            <input type="number" id="sliderWeight" step="0.1" min="0" placeholder="滑座重量">
+                        </div>
+                        <div class="form-group">
+                            <label for="attractionForce">吸引力 (N)</label>
+                            <input type="number" id="attractionForce" step="0.1" min="0" placeholder="吸引力">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sliderResistance">滑块阻力 (N)</label>
+                            <input type="number" id="sliderResistance" step="0.1" min="0" placeholder="滑块阻力">
+                        </div>
+                        <div class="form-group">
+                            <label for="frictionCoefficient">摩擦系数</label>
+                            <input type="number" id="frictionCoefficient" step="0.001" min="0" max="1" placeholder="摩擦系数">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="thrustConstant">推力常数</label>
+                            <input type="number" id="thrustConstant" step="0.1" min="0" placeholder="推力常数">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <!-- 负载比例重点显示 -->
+                <div class="card load-ratio-card">
+                    <h2>🎯 负载比例分析</h2>
+                    <div id="loadRatioAnalysis" class="load-ratio-analysis">
+                        <p>请填写参数并点击"开始计算"按钮查看负载比例分析。</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 计算结果</h2>
+                    <div class="action-buttons">
+                        <button type="button" id="calculateBtn" class="btn btn-primary">🚀 开始计算</button>
+                        <button type="button" id="resetBtn" class="btn btn-secondary">🔄 重置</button>
+                        <button type="button" id="exportBtn" class="btn btn-success">📊 导出Excel报告</button>
+                    </div>
+                    
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <span class="result-label">加速时间</span>
+                            <span class="result-value" id="accelTime">-</span>
+                            <span class="result-unit">秒</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">减速时间</span>
+                            <span class="result-value" id="decelTime">-</span>
+                            <span class="result-unit">秒</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">等速时间</span>
+                            <span class="result-value" id="constantSpeedTime">-</span>
+                            <span class="result-unit">秒</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">负载力</span>
+                            <span class="result-value" id="loadForce">-</span>
+                            <span class="result-unit">N</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">等效推力</span>
+                            <span class="result-value" id="equivalentThrust">-</span>
+                            <span class="result-unit">N</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">瞬间推力</span>
+                            <span class="result-value" id="instantThrust">-</span>
+                            <span class="result-unit">N</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">减速推力</span>
+                            <span class="result-value" id="decelThrust">-</span>
+                            <span class="result-unit">N</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">等效电流</span>
+                            <span class="result-value" id="equivalentCurrent">-</span>
+                            <span class="result-unit">A</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">瞬间电流</span>
+                            <span class="result-value" id="instantCurrent">-</span>
+                            <span class="result-unit">A</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">来回时间</span>
+                            <span class="result-value" id="roundTripTime">-</span>
+                            <span class="result-unit">秒</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">单趟时间</span>
+                            <span class="result-value" id="singleTripTime">-</span>
+                            <span class="result-unit">秒</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">最大负重*1</span>
+                            <span class="result-value" id="maxLoad">-</span>
+                            <span class="result-unit">kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📋 计算详情</h2>
+                    <div id="calculationDetails" class="calculation-details">
+                        <p>请填写参数并点击"开始计算"按钮查看详细计算过程。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="card">
+                <h2>ℹ️ 使用说明</h2>
+                <div class="info-content">
+                    <h3>📝 输入参数说明</h3>
+                    <ul>
+                        <li><strong>负载重量:</strong> 需要移动的负载质量，单位为千克</li>
+                        <li><strong>最高速度:</strong> 电机运行的最大速度，单位为米/秒</li>
+                        <li><strong>加速度:</strong> 电机加速和减速的加速度，单位为米/秒²</li>
+                        <li><strong>总行程:</strong> 电机需要移动的总距离，单位为米</li>
+                        <li><strong>中途休息时间:</strong> 在行程中途的停留时间，单位为秒</li>
+                    </ul>
+                    
+                    <h3>⚙️ 电机参数说明</h3>
+                    <ul>
+                        <li><strong>额定推力:</strong> 电机的额定推力数据，单位为牛顿</li>
+                        <li><strong>最大推力:</strong> 电机的最大推力（额定推力×4.5），单位为牛顿</li>
+                        <li><strong>额定电流:</strong> 电机的额定工作电流</li>
+                        <li><strong>峰值电流:</strong> 电机的峰值电流</li>
+                        <li><strong>滑座重量:</strong> 电机滑座的重量，单位为千克</li>
+                        <li><strong>吸引力:</strong> 电机的吸引力，单位为牛顿</li>
+                        <li><strong>滑块阻力:</strong> 滑块的阻力，单位为牛顿</li>
+                        <li><strong>摩擦系数:</strong> 摩擦系数（0-1之间）</li>
+                        <li><strong>推力常数:</strong> 电机的推力常数</li>
+                    </ul>
+                    
+                    <h3>📊 计算公式</h3>
+                    <div class="formula-section">
+                        <p><strong>加速时间:</strong> 最高速度 ÷ 加速度</p>
+                        <p><strong>减速时间:</strong> 与加速时间相同</p>
+                        <p><strong>等速时间:</strong> ((2 × 总行程 ÷ 最高速度) - 加速时间 - 减速时间) ÷ 2</p>
+                        <p><strong>负载力:</strong> ((滑座重量 + 负载重量) × 9.8 + 吸引力) × 摩擦系数 + 滑块阻力</p>
+                        <p><strong>瞬间推力:</strong> (滑座重量 + 负载重量) × 加速度 + 负载力</p>
+                        <p><strong>减速推力:</strong> (滑座重量 + 负载重量) × 加速度 - 负载力</p>
+                        <p><strong>等效推力:</strong> √((瞬间推力² × 加速时间 + 负载力² × 等速时间 + 减速推力² × 减速时间 + 负载力² × 休息时间) ÷ 总时间)</p>
+                        <p><strong>等效电流:</strong> 等效推力 ÷ 推力常数</p>
+                        <p><strong>瞬间电流:</strong> 瞬间推力 ÷ 推力常数</p>
+                        <p><strong>负载比例:</strong> 等效推力 ÷ 额定推力 × 100%</p>
+                        <p><strong>来回时间:</strong> (加速时间 + 减速时间 + 等速时间 + 休息时间) × 2</p>
+                        <p><strong>单趟时间:</strong> 来回时间 ÷ 2</p>
+                        <p><strong>最大负重*1:</strong> 额定推力 ÷ 3（条件：速度1m/s，加速度0.5G）</p>
+                    </div>
+
+                    <h3>🎯 负载比例评估标准</h3>
+                    <div class="load-ratio-standards">
+                        <div class="ratio-item excellent">
+                            <span class="ratio-range">50-70%</span>
+                            <span class="ratio-description">优秀 - 最佳工作区间</span>
+                        </div>
+                        <div class="ratio-item good">
+                            <span class="ratio-range">30-50% 或 70-80%</span>
+                            <span class="ratio-description">良好 - 安全可靠</span>
+                        </div>
+                        <div class="ratio-item warning">
+                            <span class="ratio-range">80-100%</span>
+                            <span class="ratio-description">警告 - 接近极限</span>
+                        </div>
+                        <div class="ratio-item danger">
+                            <span class="ratio-range">>100%</span>
+                            <span class="ratio-description">危险 - 超出范围</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 

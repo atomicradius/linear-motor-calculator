@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直线电机推力计算器 - 高级版</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚀 直线电机推力计算器 - 高级版</h1>
+            <p>CSK直线电机推力与容量计算工具 - 含图表分析</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="card">
+                    <h2>📊 电机参数</h2>
+                    <div class="form-group">
+                        <label for="voltage">额定电压 (V)</label>
+                        <input type="number" id="voltage" value="220" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="current">额定电流 (A)</label>
+                        <input type="number" id="current" value="5" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="power">额定功率 (W)</label>
+                        <input type="number" id="power" value="1000" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="efficiency">电机效率 (%)</label>
+                        <input type="number" id="efficiency" value="85" step="0.1" max="100">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 机械参数</h2>
+                    <div class="form-group">
+                        <label for="mass">负载质量 (kg)</label>
+                        <input type="number" id="mass" value="50" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="acceleration">加速度 (m/s²)</label>
+                        <input type="number" id="acceleration" value="2" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="friction">摩擦系数</label>
+                        <input type="number" id="friction" value="0.1" step="0.01" min="0" max="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="gravity">重力加速度 (m/s²)</label>
+                        <input type="number" id="gravity" value="9.81" step="0.01">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🌍 环境参数</h2>
+                    <div class="form-group">
+                        <label for="temperature">工作温度 (°C)</label>
+                        <input type="number" id="temperature" value="25" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="altitude">海拔高度 (m)</label>
+                        <input type="number" id="altitude" value="0" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="dutyCycle">工作制 (%)</label>
+                        <input type="number" id="dutyCycle" value="100" step="1" max="100">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 分析参数</h2>
+                    <div class="form-group">
+                        <label for="speedRange">速度范围 (m/s)</label>
+                        <input type="number" id="speedRange" value="5" step="0.1" min="0.1" max="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="speedSteps">速度步数</label>
+                        <input type="number" id="speedSteps" value="20" step="1" min="5" max="50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div class="card results-card">
+                    <h2>📈 计算结果</h2>
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <div class="result-label">理论推力</div>
+                            <div class="result-value" id="theoreticalForce">0 N</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">实际推力</div>
+                            <div class="result-value" id="actualForce">0 N</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">所需功率</div>
+                            <div class="result-value" id="requiredPower">0 W</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">安全系数</div>
+                            <div class="result-value" id="safetyFactor">0</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">效率评估</div>
+                            <div class="result-value" id="efficiencyRating">-</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">推荐型号</div>
+                            <div class="result-value" id="recommendedModel">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="calculate()">🔄 重新计算</button>
+                        <button class="btn btn-secondary" onclick="resetForm()">🔄 重置参数</button>
+                        <button class="btn btn-success" onclick="exportResults()">📄 导出结果</button>
+                        <button class="btn btn-warning" onclick="generateCharts()">📊 生成图表</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 图表分析</h2>
+                    <div class="chart-container">
+                        <canvas id="forceChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="powerChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 计算详情</h2>
+                    <div class="calculation-details" id="calculationDetails">
+                        <p>请输入参数后点击计算按钮查看详细计算过程...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="card">
+                <h2>ℹ️ 高级功能说明</h2>
+                <div class="info-content">
+                    <h3>图表分析功能</h3>
+                    <ul>
+                        <li><strong>推力-速度曲线</strong>：显示不同速度下的推力变化</li>
+                        <li><strong>功率-速度曲线</strong>：显示不同速度下的功率需求</li>
+                        <li><strong>效率分析</strong>：分析电机在不同工况下的效率</li>
+                    </ul>
+                    
+                    <h3>高级计算特性</h3>
+                    <ul>
+                        <li><strong>多速度点分析</strong>：在指定速度范围内进行多点计算</li>
+                        <li><strong>温度补偿</strong>：考虑温度对电机性能的影响</li>
+                        <li><strong>海拔补偿</strong>：考虑海拔高度对空气密度的影响</li>
+                        <li><strong>工作制影响</strong>：考虑不同工作制对电机性能的影响</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="advanced-script.js"></script>
+</body>
+</html> 
